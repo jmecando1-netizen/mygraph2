@@ -29,7 +29,7 @@ def load_data():
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # 장르가 여러 개 있으면 첫 번째 장르만 사용
+    # 장르가 여러 개이면 첫 번째 장르만 사용
     df["genre"] = (
         df["genre"]
         .fillna("미상")
@@ -164,7 +164,6 @@ fig3.update_layout(
 
 st.plotly_chart(fig3, use_container_width=True)
 
-# 가장 많은 영화가 들어 있는 구간 계산
 counts, edges = np.histogram(
     hist_df["total_audi"],
     bins=10
@@ -175,7 +174,6 @@ max_bin_index = int(np.argmax(counts))
 bin_start = edges[max_bin_index]
 bin_end = edges[max_bin_index + 1]
 
-# 가장 관객이 많은 영화
 top_movie_row = hist_df.loc[
     hist_df["total_audi"].idxmax()
 ]
@@ -240,7 +238,7 @@ st.markdown("### 이 그래프로 알 수 있는 것")
 
 st.text_input(
     "한 문장으로 작성해 보세요.",
-    placeholder="예: 개봉일 스크린수가 많은 영화일수록 총 관객수도 높은 경향이 있는지 확인할 수 있다.",
+    placeholder="예: 개봉일 스크린수가 많은 영화일수록 총 관객수도 많은 경향이 나타난다.",
     key="insight4"
 )
 
@@ -321,7 +319,6 @@ bubble_df = df[
     ]
 ).copy()
 
-# 첫 주 관객수가 0인 경우에도 점이 보이게 최소값 1 적용
 bubble_df["bubble_size"] = bubble_df["first_week_audi"].clip(lower=1)
 
 fig6 = px.scatter(
@@ -358,7 +355,7 @@ st.markdown("### 이 그래프로 알 수 있는 것")
 
 st.text_input(
     "한 문장으로 작성해 보세요.",
-    placeholder="예: 첫 주 관객수가 큰 영화가 총 관객수에서도 어떤 특징을 보이는지 확인할 수 있다.",
+    placeholder="예: 첫 주 관객수가 많은 영화일수록 총 관객수도 많은 경향을 확인할 수 있다.",
     key="insight6"
 )
 
@@ -398,6 +395,54 @@ st.markdown("### 이 그래프로 알 수 있는 것")
 
 st.text_input(
     "한 문장으로 작성해 보세요.",
-    placeholder="예: 제작 국가별로 어떤 장르의 영화가 많이 포함되어 있는지 알 수 있다.",
+    placeholder="예: 제작 국가에 따라 영화의 장르 구성이 다르다는 것을 알 수 있다.",
     key="insight7"
+)
+
+st.markdown("---")
+
+
+# =========================================================
+# 8. 나만의 질문 - 산점도
+# =========================================================
+
+my_question = "개봉일 상영횟수가 많은 영화는 첫 주 관객도 많은가?"
+
+st.subheader("8. 나만의 질문")
+
+scatter8_df = df[
+    ["movieNm", "first_show", "first_week_audi"]
+].dropna(
+    subset=["first_show", "first_week_audi"]
+).copy()
+
+fig8 = px.scatter(
+    scatter8_df,
+    x="first_show",
+    y="first_week_audi",
+    hover_name="movieNm",
+    title=my_question,
+    labels={
+        "first_show": "개봉일 상영횟수",
+        "first_week_audi": "첫 주 관객수"
+    }
+)
+
+fig8.update_traces(
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "개봉일 상영횟수: %{x:,}회<br>"
+        "첫 주 관객수: %{y:,}명"
+        "<extra></extra>"
+    )
+)
+
+st.plotly_chart(fig8, use_container_width=True)
+
+st.markdown("### 이 그래프로 알 수 있는 것")
+
+st.text_input(
+    "한 문장으로 작성해 보세요.",
+    placeholder="예: 개봉일 상영횟수가 많을수록 첫 주 관객수가 많은 경향이 있는지 확인할 수 있다.",
+    key="insight8"
 )
